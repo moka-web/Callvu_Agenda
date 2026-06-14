@@ -1,0 +1,41 @@
+# Dependency directories
+node_modules
+/node_modules
+
+# Next.js build outputs
+.next
+/apps/web/.next
+out
+
+# TypeScript build outputs
+dist
+/packages/shared/dist
+/apps/api/dist
+
+# Turborepo cache and output
+.turbo
+
+# Environment files and secrets
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+apps/api/.env
+apps/web/.env.local
+
+# IDEs and Editors
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# SDD and Agent Cache files
+.atl/

@@ -1,0 +1,43 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Cliente {
+  id        String   @id @default(uuid())
+  nombre    String
+  telefono  String   @unique
+  email     String?
+  turnos    Turno[]
+  createdAt DateTime @default(now())
+}
+
+model Agenda {
+  id               String   @id @default(uuid())
+  nombre           String
+  descripcion      String?
+  duracionSlot     Int
+  activa           Boolean  @default(true)
+  horariosAtencion Json
+  turnos           Turno[]
+  createdAt        DateTime @default(now())
+}
+
+model Turno {
+  id                    String   @id @default(uuid())
+  agendaId              String
+  agenda                Agenda   @relation(fields: [agendaId], references: [id])
+  clienteId             String
+  cliente               Cliente  @relation(fields: [clienteId], references: [id])
+  fechaHora             DateTime
+  duracion              Int
+  estado                String   @default("pendiente")
+  googleCalendarEventId String?
+  createdAt             DateTime @default(now())
+
+  @@unique([agendaId, fechaHora])
+}
