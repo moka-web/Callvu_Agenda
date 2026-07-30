@@ -7,6 +7,10 @@ import { PrismaClient } from '@prisma/client';
 import { errorHandler } from './shared/middlewares/error-handler.middleware';
 import { swaggerDocument } from './shared/swagger/swagger.config';
 
+// External Services Layer
+import { WhatsAppService } from './services/whatsapp/whatsapp.service';
+import { WhatsAppController } from './services/whatsapp/whatsapp.controller';
+
 // Agenda Module
 import { PrismaAgendaRepository } from './modules/agenda/prisma-agenda.repository';
 import { AgendaService } from './modules/agenda/agenda.service';
@@ -32,12 +36,16 @@ app.use(express.json());
 // Infrastructure & Dependency Injection
 const prisma = new PrismaClient();
 
+// External Services
+const whatsappService = new WhatsAppService();
+const whatsappController = new WhatsAppController(whatsappService);
+
 // Repositories
 const agendaRepository = new PrismaAgendaRepository(prisma);
 const clienteRepository = new PrismaClienteRepository(prisma);
 const turnoRepository = new PrismaTurnoRepository(prisma);
 
-// Services
+// Domain Services
 const agendaService = new AgendaService(agendaRepository);
 const clienteService = new ClienteService(clienteRepository);
 const turnoService = new TurnoService(turnoRepository, agendaRepository, clienteRepository);
@@ -56,11 +64,12 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-// Module routes
+// Routes
 app.use('/agendas', agendaController.router);
 app.use('/clientes', clienteController.router);
 app.use('/turnos', turnoController.router);
 app.use('/slots', slotController.router);
+app.use('/webhooks/whatsapp', whatsappController.router);
 
 // Centralized Error Handling Middleware (Must be last)
 app.use(errorHandler);
