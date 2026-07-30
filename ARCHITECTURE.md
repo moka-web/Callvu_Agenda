@@ -1,96 +1,58 @@
-# Arquitectura del Proyecto — Callvu Agenda
+# Arquitectura del Backend — Callvu Agenda API
 
-Este documento describe la arquitectura, la estructura de directorios y la configuración de herramientas del monorepo de **Callvu Agenda**.
+Este documento describe la arquitectura y estructura del servicio **Backend autónomo** de **Callvu Agenda**.
 
 ---
 
-## 1. Vista General de la Arquitectura
+## 1. Vista General
 
-El proyecto está organizado como un **monorepo TypeScript** gestionado por `pnpm` y orquestado por `Turborepo`. Esto permite compartir código entre el frontend y el backend de forma instantánea y segura.
+El proyecto es una **API REST independiente** desarrollada con Node.js, Express, TypeScript y Prisma ORM.
 
 ```mermaid
 graph TD
-    subgraph Workspaces
-        shared["packages/shared (Tipos comunes)"]
-        api["apps/api (Backend Express + Prisma)"]
-        web["apps/web (Frontend Next.js)"]
-    end
-
-    api -->|Importa| shared
-    web -->|Importa| shared
-    api -->|Persiste| DB[(PostgreSQL)]
+    Client["Cliente (Frontend / External App)"] -->|HTTP REST| API["Express Server (src/app.ts)"]
+    API -->|Prisma Client| DB[(PostgreSQL Database)]
 ```
 
 ---
 
 ## 2. Estructura del Proyecto
 
-La raíz del monorepo distribuye las responsabilidades en las siguientes carpetas:
-
 ```text
-callvu-agenda/
-├── apps/
-│   ├── api/                  # Servidor Backend (Express + Prisma)
-│   └── web/                  # Cliente Frontend (Next.js App Router)
-├── packages/
-│   └── shared/               # Tipos, contratos e interfaces compartidas
-├── openspec/                 # Especificaciones y diseños del flujo SDD
-├── package.json              # Configuración raíz de Turborepo y scripts
-├── pnpm-workspace.yaml       # Definición de workspaces de pnpm
-└── turbo.json                # Pipeline de ejecución de tareas (build, test)
+callvu-agenda-api/
+├── prisma/
+│   └── schema.prisma         # Esquema de datos PostgreSQL
+├── src/
+│   ├── types/                # Contratos y tipos de dominio
+│   │   └── index.ts
+│   ├── app.ts                # Configuración de Express (middlewares, rutas)
+│   ├── app.test.ts           # Pruebas de integración de endpoints
+│   └── server.ts             # Punto de entrada HTTP (puerto)
+├── .gitignore
+├── ARCHITECTURE.md
+├── package.json              # Dependencias y scripts del backend
+├── tsconfig.json             # Configuración del compilador TypeScript
+└── vitest.config.ts          # Configuración del ejecutor de tests
 ```
 
 ---
 
-## 3. Workspaces en Detalle
+## 3. Principios de Arquitectura
 
-### A. `@callvu-agenda/shared`
-* **Ubicación**: `packages/shared/`
-* **Propósito**: Contiene los contratos de datos y tipos de dominio compartidos por la API y la Web.
-* **Modelos Principales**:
-  * `Cliente`: Datos del usuario/operador.
-  * `Agenda`: Horarios y reglas de slots disponibles.
-  * `Turno`: Reservas concretas ligadas a una agenda y cliente.
-  * `Slot`: Bloques dinámicos de tiempo calculado.
-
-### B. `@callvu-agenda/api` (Backend)
-* **Ubicación**: `apps/api/`
-* **Tecnologías**: Node.js, Express, TypeScript, Prisma ORM.
-* **Base de Datos**: PostgreSQL.
-* **Diseño**: Modular. Los servicios y rutas se dividen en módulos (agenda, turno, slot, cliente) facilitando una migración futura a NestJS.
-* **Testing**: Vitest + Supertest para llamadas HTTP directas al servidor Express.
-
-### C. `@callvu-agenda/web` (Frontend)
-* **Ubicación**: `apps/web/`
-* **Tecnologías**: Next.js (App Router), React, TypeScript.
-* **Estilos**: **CSS Modules (Vanilla CSS)** para encapsular el diseño con variables HSL globales. Sin librerías utilitarias pesadas.
-* **Manejo de Estado**: **React Context API** nativa (`src/context/AppContext.tsx`) para la propagación de estados de usuario y configuraciones locales.
-* **Testing**: Vitest + JSDOM + React Testing Library (RTL).
+1. **Separación de Responsabilidades**: Repositorio 100% enfocado en la lógica del negocio de agendas, disponibilidad y turnos.
+2. **Modelo Dominios e Interfaces**: Definición explícita de modelos (`Cliente`, `Agenda`, `Turno`, `Slot`) en `src/types/`.
+3. **Persistencia con Prisma**: Modelado declarativo con PostgreSQL para garantizar integridad referencial y migraciones seguras.
+4. **Testing Automatizado**: Pruebas con Vitest + Supertest para asegurar la estabilidad del servidor.
 
 ---
 
-## 4. Orquestación y Herramientas (Turborepo)
+## 4. Guía de Comandos
 
-Configuramos `turbo.json` en la raíz para definir cómo se ejecutan e interconectan las tareas:
-
-* **Compilación (`pnpm build`)**: Sabe que `@callvu-agenda/api` y `@callvu-agenda/web` dependen de `@callvu-agenda/shared`. Compila primero el paquete compartido para evitar fallos de importación.
-* **Testing (`pnpm test`)**: Ejecuta Vitest en todos los paquetes en paralelo.
-* **Caché de Tareas**: Si corrés comandos sin haber modificado archivos, Turborepo te devolverá el resultado anterior instantáneamente (en milisegundos) leyendo el caché del disco.
-
-> [!IMPORTANT]
-> **Optimización de RAM para Entornos Virtuales**:
-> Para evitar errores de falta de memoria (Out of Memory) en servidores de CI o contenedores virtuales, la suite de tests en `apps/web/vitest.config.ts` está configurada con `pool: 'forks'` y `singleFork: true`, ejecutando las simulaciones del navegador secuencialmente en un único proceso.
-
----
-
-## 5. Guía de Comandos Rápidos
-
-Ejecutá los siguientes comandos desde la **raíz del monorepo**:
-
-| Comando | Acción |
-|---------|--------|
-| `pnpm install` | Instala todas las dependencias del monorepo |
-| `pnpm build` | Compila todos los proyectos en orden de dependencia |
-| `pnpm test` | Ejecuta las pruebas unitarias e integración en todos los workspaces |
-| `pnpm --filter @callvu-agenda/api dev` | Levanta el backend Express en modo desarrollo (puerto 3000) |
-| `pnpm --filter @callvu-agenda/web dev` | Levanta el frontend Next.js en modo desarrollo (puerto 3000/3001) |
+| Comando | Descripción |
+|---------|-------------|
+| `npm run dev` | Inicia el servidor de desarrollo con recarga automática |
+| `npm run build` | Compila TypeScript a código JavaScript en `dist/` |
+| `npm run start` | Ejecuta la API compilada en producción |
+| `npm run test` | Ejecuta la suite de pruebas unitarias/integración con Vitest |
+| `npm run prisma:generate` | Genera el cliente de Prisma basado en el esquema |
+| `npm run prisma:migrate` | Ejecuta migraciones de base de datos |

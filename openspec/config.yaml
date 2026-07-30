@@ -1,12 +1,12 @@
 schema: spec-driven
 
 context: |
-  Tech stack: Node.js (v20 LTS), Next.js (App Router), Express, TypeScript
-  Architecture: Monorepo layout with apps/api/ (backend) and apps/web/ (frontend)
-  Testing: Not configured yet
-  Style: ESLint + Prettier planned
+  Tech stack: Node.js (v20+), Express, TypeScript, Prisma ORM (PostgreSQL), Zod, Vitest, Supertest
+  Architecture: Standalone REST Backend API (callvu-agenda-api) with Controller / Service / Repository pattern
+  Testing: Vitest unit and integration tests with Strict TDD approach
+  Validation: Zod runtime schemas with inferred TypeScript types
 
-strict_tdd: false
+strict_tdd: true
 
 rules:
   proposal:
@@ -32,20 +32,20 @@ rules:
     - Warn before merging destructive deltas (large removals)
 
 testing:
-  strict_tdd: false
+  strict_tdd: true
   capabilities:
-    detected: 2026-06-13
+    detected: 2026-07-30
     test_runner:
-      command: ""
-      framework: ""
+      command: "pnpm test"
+      framework: "vitest"
     test_layers:
-      unit: false
-      integration: false
+      unit: true
+      integration: true
       e2e: false
     coverage:
-      available: false
-      command: ""
+      available: true
+      command: "pnpm vitest --coverage"
     quality_tools:
-      linter: false
-      type_checker: false
-      formatter: false
+      linter: true
+      type_checker: true
+      formatter: true
