@@ -1,6 +1,11 @@
 import express from 'express';
 import cors from 'cors';
+import swaggerUi from 'swagger-ui-express';
 import { PrismaClient } from '@prisma/client';
+
+// Shared Infrastructure
+import { errorHandler } from './shared/middlewares/error-handler.middleware';
+import { swaggerDocument } from './shared/swagger/swagger.config';
 
 // Agenda Module
 import { PrismaAgendaRepository } from './modules/agenda/prisma-agenda.repository';
@@ -44,6 +49,9 @@ const clienteController = new ClienteController(clienteService);
 const turnoController = new TurnoController(turnoService);
 const slotController = new SlotController(slotService);
 
+// Documentation UI
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
@@ -53,5 +61,8 @@ app.use('/agendas', agendaController.router);
 app.use('/clientes', clienteController.router);
 app.use('/turnos', turnoController.router);
 app.use('/slots', slotController.router);
+
+// Centralized Error Handling Middleware (Must be last)
+app.use(errorHandler);
 
 export default app;
