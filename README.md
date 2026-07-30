@@ -62,6 +62,7 @@ callvu-agenda-api/
 │   ├── app.ts                       # Entrada de Express e Inyección de Dependencias
 │   └── server.ts                    # Punto de entrada HTTP (Puerto 3000)
 ├── docker-compose.yml               # Orquestación del contenedor PostgreSQL local
+├── MANUAL_TESTING_GUIDE.md          # Guía paso a paso con objetos JSON de prueba y diagramas
 ├── openspec/                        # Especificaciones y requerimientos (SDD)
 ├── ARCHITECTURE.md                  # Detalles arquitectónicos del backend
 ├── package.json
@@ -102,3 +103,11 @@ pnpm dev
 
 - **Servidor HTTP**: `http://localhost:3000`
 - **Swagger Documentation UI**: `http://localhost:3000/docs`
+
+---
+
+## 5. Guía de Prueba Manual & Integración con WhatsApp
+
+Para consultar el **diagrama de flujo de secuencia**, obtener los **objetos JSON y comandos cURL de prueba** (Crear Agenda, Cliente, Slots y Turnos) y seguir la **guía paso a paso para vincular WhatsApp Cloud API con Ngrok**:
+
+👉 **[MANUAL_TESTING_GUIDE.md](file:///C:/Users/moca_/OneDrive/Escritorio/Callvu_Agenda/MANUAL_TESTING_GUIDE.md)**
