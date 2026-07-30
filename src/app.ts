@@ -12,8 +12,10 @@ import { PrismaClienteRepository } from './modules/cliente/prisma-cliente.reposi
 import { ClienteService } from './modules/cliente/cliente.service';
 import { ClienteController } from './modules/cliente/cliente.controller';
 
-// Slot Module
+// Turno & Slot Module
 import { PrismaTurnoRepository } from './modules/turno/prisma-turno.repository';
+import { TurnoService } from './modules/turno/turno.service';
+import { TurnoController } from './modules/turno/turno.controller';
 import { SlotService } from './modules/slot/slot.service';
 import { SlotController } from './modules/slot/slot.controller';
 
@@ -25,19 +27,21 @@ app.use(express.json());
 // Infrastructure & Dependency Injection
 const prisma = new PrismaClient();
 
-// Agenda
+// Repositories
 const agendaRepository = new PrismaAgendaRepository(prisma);
-const agendaService = new AgendaService(agendaRepository);
-const agendaController = new AgendaController(agendaService);
-
-// Cliente
 const clienteRepository = new PrismaClienteRepository(prisma);
-const clienteService = new ClienteService(clienteRepository);
-const clienteController = new ClienteController(clienteService);
-
-// Slot
 const turnoRepository = new PrismaTurnoRepository(prisma);
+
+// Services
+const agendaService = new AgendaService(agendaRepository);
+const clienteService = new ClienteService(clienteRepository);
+const turnoService = new TurnoService(turnoRepository, agendaRepository, clienteRepository);
 const slotService = new SlotService(agendaRepository, turnoRepository);
+
+// Controllers
+const agendaController = new AgendaController(agendaService);
+const clienteController = new ClienteController(clienteService);
+const turnoController = new TurnoController(turnoService);
 const slotController = new SlotController(slotService);
 
 app.get('/health', (req, res) => {
@@ -47,6 +51,7 @@ app.get('/health', (req, res) => {
 // Module routes
 app.use('/agendas', agendaController.router);
 app.use('/clientes', clienteController.router);
+app.use('/turnos', turnoController.router);
 app.use('/slots', slotController.router);
 
 export default app;
