@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { ApiClient } from '../services/api';
 import { 
   Key, 
   Calendar, 
@@ -34,21 +35,47 @@ export const ConfiguracionIntegracionesView: React.FC = () => {
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
-  const handleSaveAll = (e: React.FormEvent) => {
+  useEffect(() => {
+    ApiClient.getCredentials().then((creds) => {
+      if (creds) {
+        if (creds.whatsappPhoneNumberId) setWhatsappPhoneId(creds.whatsappPhoneNumberId);
+        if (creds.whatsappVerifyToken) setWhatsappVerifyToken(creds.whatsappVerifyToken);
+        if (creds.googleClientId) setGoogleClientId(creds.googleClientId);
+        if (creds.adminEmail) setAdminEmail(creds.adminEmail);
+        setIsGoogleConnected(Boolean(creds.isGoogleConnected));
+      }
+    });
+  }, []);
+
+  const handleSaveAll = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
 
-    setTimeout(() => {
-      setIsSaving(false);
-      setToastMessage('¡Credenciales e integraciones guardadas exitosamente!');
-      setTimeout(() => setToastMessage(null), 4000);
-    }, 700);
+    const payload = {
+      whatsappPhoneNumberId: whatsappPhoneId,
+      whatsappApiToken: whatsappToken,
+      whatsappVerifyToken: whatsappVerifyToken,
+      googleClientId: googleClientId,
+      googleClientSecret: googleClientSecret,
+      adminEmail: adminEmail,
+    };
+
+    await ApiClient.updateCredentials(payload);
+
+    setIsSaving(false);
+    setToastMessage('¡Credenciales e integraciones guardadas exitosamente en la API!');
+    setTimeout(() => setToastMessage(null), 4000);
   };
 
-  const handleToggleGoogle = () => {
-    setIsGoogleConnected(!isGoogleConnected);
-    setToastMessage(isGoogleConnected ? 'Google Calendar desconectado' : 'Conexión con Google Calendar activada');
-    setTimeout(() => setToastMessage(null), 3000);
+  const handleToggleGoogle = async () => {
+    const authUrl = await ApiClient.getGoogleAuthUrl();
+    if (authUrl) {
+      window.location.href = authUrl;
+    } else {
+      setIsGoogleConnected(!isGoogleConnected);
+      setToastMessage(isGoogleConnected ? 'Google Calendar desconectado' : 'Conexión con Google Calendar activada');
+      setTimeout(() => setToastMessage(null), 3000);
+    }
   };
 
   return (

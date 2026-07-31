@@ -323,4 +323,42 @@ export class ApiClient {
       return true;
     }
   }
+
+  // Credentials & Config API
+  public static async getCredentials(): Promise<any> {
+    try {
+      const res = await fetch(`${API_BASE_URL}/config/credentials`);
+      if (!res.ok) throw new Error('Error al obtener credenciales');
+      this.isConnected = true;
+      return await res.json();
+    } catch {
+      return null;
+    }
+  }
+
+  public static async updateCredentials(payload: any): Promise<any> {
+    try {
+      const res = await fetch(`${API_BASE_URL}/config/credentials`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) throw new Error('Error al actualizar credenciales');
+      this.isConnected = true;
+      return await res.json();
+    } catch {
+      return null;
+    }
+  }
+
+  public static async getGoogleAuthUrl(): Promise<string | null> {
+    try {
+      const res = await fetch(`${API_BASE_URL}/config/auth/google/url`);
+      if (!res.ok) return null;
+      const data = await res.json();
+      return data.url;
+    } catch {
+      return null;
+    }
+  }
 }

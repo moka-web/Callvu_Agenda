@@ -28,6 +28,10 @@ import { TurnoController } from './modules/turno/turno.controller';
 import { SlotService } from './modules/slot/slot.service';
 import { SlotController } from './modules/slot/slot.controller';
 
+// Config & Auth Module
+import { ConfigService } from './modules/config/config.service';
+import { ConfigController } from './modules/config/config.controller';
+
 const app = express();
 
 app.use(cors());
@@ -36,9 +40,10 @@ app.use(express.json());
 // Infrastructure & Dependency Injection
 const prisma = new PrismaClient();
 
-// External Services
+// External & Domain Services
 const whatsappService = new WhatsAppService();
 const whatsappController = new WhatsAppController(whatsappService);
+const configService = new ConfigService();
 
 // Repositories
 const agendaRepository = new PrismaAgendaRepository(prisma);
@@ -56,6 +61,7 @@ const agendaController = new AgendaController(agendaService);
 const clienteController = new ClienteController(clienteService);
 const turnoController = new TurnoController(turnoService);
 const slotController = new SlotController(slotService);
+const configController = new ConfigController(configService);
 
 // Documentation UI
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
@@ -70,6 +76,8 @@ app.use('/clientes', clienteController.router);
 app.use('/turnos', turnoController.router);
 app.use('/slots', slotController.router);
 app.use('/webhooks/whatsapp', whatsappController.router);
+app.use('/config', configController.router);
+app.use('/oauth2callback', configController.router);
 
 // Centralized Error Handling Middleware (Must be last)
 app.use(errorHandler);
