@@ -94,17 +94,17 @@ export const FaqView = () => {
   ];
 
   return (
-    <div className="animate-fade-in" style={{ maxWidth: '900px', margin: '0 auto', width: '100%' }}>
+    <div className="animate-fade-in" style={{ width: '100%', maxWidth: '1200px', margin: '0 auto' }}>
       
       {/* Header */}
-      <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-        <div className="badge badge-info" style={{ marginBottom: '0.5rem' }}>
+      <div style={{ textAlign: 'center', marginBottom: '3.5rem' }}>
+        <div className="badge badge-info" style={{ marginBottom: '0.75rem' }}>
           <HelpCircle size={14} /> Centro de Información
         </div>
-        <h2 style={{ fontSize: '1.8rem', letterSpacing: '-0.02em' }}>
-          Preguntas Frecuentes y <span className="gradient-text">Propósito</span>
+        <h2 style={{ fontSize: '2.2rem', marginBottom: '0.75rem', letterSpacing: '-0.02em' }}>
+          Preguntas <span className="gradient-text">Frecuentes</span>
         </h2>
-        <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginTop: '0.25rem' }}>
+        <p style={{ fontSize: '1rem', color: 'var(--text-secondary)' }}>
           Descubrí cómo Callvu Agenda optimiza la gestión de turnos y la atención de tus clientes.
         </p>
       </div>

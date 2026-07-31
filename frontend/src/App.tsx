@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { HomePage } from './pages/HomePage';
 import { ClientPage } from './pages/ClientPage';
 import { AdminPage } from './pages/AdminPage';
 
@@ -6,8 +7,10 @@ export function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Customer Facing Routes */}
-        <Route path="/" element={<ClientPage />} />
+        {/* Landing Page */}
+        <Route path="/" element={<HomePage />} />
+
+        {/* Customer Facing Booking Route */}
         <Route path="/reservar" element={<ClientPage />} />
 
         {/* Operator / Admin Facing Route */}
